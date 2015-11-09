@@ -18,40 +18,40 @@ define('PWEB_TAX_NAME','Types');
 
 // Add new taxonomy
 function pweb_add_single_choice_taxonomy() {
-	// create a new taxonomy
-	register_taxonomy(
-            PWEB_TAX,
-            'post',
-            array(
-                'label' => __( PWEB_TAX_NAME ),
-                'rewrite' => array( 'slug' => 'company' ),	//RESUBMIT PERMALINKS TO APPLY (amend 'slug' as required)
-                'show_in_nav_menus' => true
-            )
-	);
-	//Populate taxonomy with terms (any but "Standard" could be edited/removed as required)
-	wp_insert_term(
-            'Standard', // the term - DO NOT REMOVE 
-            PWEB_TAX, // the taxonomy
-            array(
-                'description'=> 'Standard post'
-            )
-	);
-	wp_insert_term(
-            'News', // the term 
-            PWEB_TAX, // the taxonomy
-            array(
-                'description'=> 'Latest news',
-                'slug' => 'news'
-            )
-	);
-	wp_insert_term(
-            'Promotions', // the term 
-            PWEB_TAX, // the taxonomy
-            array(
-                'description'=> 'Current and upcoming promotions',
-                'slug' => 'promo'
-            )
-	);
+    // create a new taxonomy
+    register_taxonomy(
+        PWEB_TAX,
+        'post',
+        array(
+            'label' => __( PWEB_TAX_NAME ),
+            'rewrite' => array( 'slug' => 'company' ),	//RESUBMIT PERMALINKS TO APPLY (amend 'slug' as required)
+            'show_in_nav_menus' => true
+        )
+    );
+    //Populate taxonomy with terms (any but "Standard" could be edited/removed as required)
+    wp_insert_term(
+        'Standard', // the term - DO NOT REMOVE 
+        PWEB_TAX, // the taxonomy
+        array(
+            'description'=> 'Standard post'
+        )
+    );
+    wp_insert_term(
+        'News', // the term 
+        PWEB_TAX, // the taxonomy
+        array(
+            'description'=> 'Latest news',
+            'slug' => 'news'
+        )
+    );
+    wp_insert_term(
+        'Promotions', // the term 
+        PWEB_TAX, // the taxonomy
+        array(
+            'description'=> 'Current and upcoming promotions',
+            'slug' => 'promo'
+        )
+    );
 }
 add_action( 'init', 'pweb_add_single_choice_taxonomy' );
 
@@ -64,88 +64,88 @@ add_action( 'admin_menu', 'pweb_remove_default_single_choice_metabox');
 
 // -->Add new taxonomy meta box on the Post edit screen
 function pweb_add_single_choice_metabox() {	 
-	$screens = array( 'post');		//only post for now	 
-	foreach ( $screens as $screen ) {
-            add_meta_box(
-                PWEB_TAX.'_div',									//(required) HTML 'id' attribute of the edit screen section
-                __( PWEB_TAX_NAME, 'properweb' ),	//(required) Title of the edit screen section, visible to user
-                'pweb_print_single_choice_metabox',				//(required) Callback function that prints out the HTML for the edit screen section
-                $screen,													//(optional) The type of writing screen on which to show the edit screen section
-                'side'	//(optional) The part of the page where the edit screen section should be shown ('normal', 'advanced', or 'side')
-            );
-	}	 
-	//add_meta_box( 'post-type_div', 'Post Types','pweb_print_single_choice_metabox','post','side','default');
+    $screens = array( 'post');		//only post for now	 
+    foreach ( $screens as $screen ) {
+        add_meta_box(
+            PWEB_TAX.'_div',									//(required) HTML 'id' attribute of the edit screen section
+            __( PWEB_TAX_NAME, 'properweb' ),	//(required) Title of the edit screen section, visible to user
+            'pweb_print_single_choice_metabox',				//(required) Callback function that prints out the HTML for the edit screen section
+            $screen,													//(optional) The type of writing screen on which to show the edit screen section
+            'side'	//(optional) The part of the page where the edit screen section should be shown ('normal', 'advanced', or 'side')
+        );
+    }	 
+    //add_meta_box( 'post-type_div', 'Post Types','pweb_print_single_choice_metabox','post','side','default');
 }
 add_action( 'add_meta_boxes', 'pweb_add_single_choice_metabox');
 
 // -->Callback to set up (print) the metabox in Edit screen
 function pweb_print_single_choice_metabox( $post ) {
-	//Get taxonomy and terms
-	$taxonomy = PWEB_TAX;
+    //Get taxonomy and terms
+    $taxonomy = PWEB_TAX;
 
-	//Set up the taxonomy object and get terms
-	$tax = get_taxonomy($taxonomy);
-	$terms = get_terms($taxonomy,array('hide_empty' => 0));
+    //Set up the taxonomy object and get terms
+    $tax = get_taxonomy($taxonomy);
+    $terms = get_terms($taxonomy,array('hide_empty' => 0));
 
-	//Name of the radio-input
-	$name = 'tax_input[' . $taxonomy . ']';
+    //Name of the radio-input
+    $name = 'tax_input[' . $taxonomy . ']';
 
-	//Get current and popular terms
-	$popular = get_terms( $taxonomy, array( 'orderby' => 'count', 'order' => 'DESC', 'number' => 5, 'hierarchical' => false ) );
-	$postterms = get_the_terms( $post->ID,$taxonomy );
-	$current = ($postterms ? array_pop($postterms) : false);
-	$current = ($current ? $current->term_id : 0);	//id=0 if no term of PWEB_TAX assigned; used to mark default
-	//echo "THIS TAX VALUE: ".$current; //for debug
-	// Add a nonce field so we can check for it later.
-	wp_nonce_field( 'pweb_metabox_pweb_post_type', 'pweb_metabox_pweb_post_type_nonce' );
-	?>
-	<div id="taxonomy-<?php echo $taxonomy; ?>" class="categorydiv">
+    //Get current and popular terms
+    $popular = get_terms( $taxonomy, array( 'orderby' => 'count', 'order' => 'DESC', 'number' => 5, 'hierarchical' => false ) );
+    $postterms = get_the_terms( $post->ID,$taxonomy );
+    $current = ($postterms ? array_pop($postterms) : false);
+    $current = ($current ? $current->term_id : 0);	//id=0 if no term of PWEB_TAX assigned; used to mark default
+    //echo "THIS TAX VALUE: ".$current; //for debug
+    // Add a nonce field so we can check for it later.
+    wp_nonce_field( 'pweb_metabox_pweb_post_type', 'pweb_metabox_pweb_post_type_nonce' );
+    ?>
+    <div id="taxonomy-<?php echo $taxonomy; ?>" class="categorydiv">
 
-            <!-- Display tabs-->
+        <!-- Display tabs-->
 <!--
-            <ul id="<?php echo $taxonomy; ?>-tabs" class="category-tabs">
-                <li class="tabs"><a href="#<?php echo $taxonomy; ?>-all" tabindex="3"><?php _e( 'All Types' ); ?></a></li>
-                <li class="hide-if-no-js"><a href="#<?php echo $taxonomy; ?>-pop" tabindex="3"><?php _e( 'Most Used' ); ?></a></li>
+        <ul id="<?php echo $taxonomy; ?>-tabs" class="category-tabs">
+            <li class="tabs"><a href="#<?php echo $taxonomy; ?>-all" tabindex="3"><?php _e( 'All Types' ); ?></a></li>
+            <li class="hide-if-no-js"><a href="#<?php echo $taxonomy; ?>-pop" tabindex="3"><?php _e( 'Most Used' ); ?></a></li>
+        </ul>
+-->
+        <!-- Display taxonomy terms 
+        <div id="<?php echo $taxonomy; ?>-all" class="tabs-panel">
+        -->
+            <ul id="<?php echo $taxonomy; ?>checklist" class="list:<?php echo $taxonomy?> categorychecklist form-no-clear">
+                <?php   
+                    foreach($terms as $term){
+                        $id = $taxonomy.'-'.$term->term_id;
+                        echo "<li id='$id'><label class='selectit'>";
+                        echo "<input type='radio' id='in-$id' name='{$name}'";
+                        if (!$current && $term->name == 'Standard') echo ' checked="checked"';
+                        else checked($current,$term->term_id,true);
+                        echo " value='{$term->name}' />{$term->name}";
+                        echo "</label></li>";
+                    }
+                ?>
+             </ul>
+        <!--</div>-->
+
+        <!-- Display popular taxonomy terms -->
+<!--
+        <div id="<?php echo $taxonomy; ?>-pop" class="tabs-panel" style="display: none;">
+            <ul id="<?php echo $taxonomy; ?>checklist-pop" class="categorychecklist form-no-clear" >
+                <?php   
+                    foreach($popular as $term){
+                        $id = 'popular-'.$taxonomy.'-'.$term->term_id;
+                        echo "<li id='$id'><label class='selectit'>";
+                        echo "<input type='radio' id='in-$id'";
+                        if (!$current && $term->name == 'Standard') echo ' checked="checked" ';
+                        else checked($current,$term->term_id,true);
+                        echo " value='$term->name' />$term->name";
+                        echo "</label></li>";
+                    }
+                ?>
             </ul>
+        </div>
 -->
-            <!-- Display taxonomy terms 
-            <div id="<?php echo $taxonomy; ?>-all" class="tabs-panel">
-            -->
-                <ul id="<?php echo $taxonomy; ?>checklist" class="list:<?php echo $taxonomy?> categorychecklist form-no-clear">
-                    <?php   
-                        foreach($terms as $term){
-                            $id = $taxonomy.'-'.$term->term_id;
-                            echo "<li id='$id'><label class='selectit'>";
-                            echo "<input type='radio' id='in-$id' name='{$name}'";
-                            if (!$current && $term->name == 'Standard') echo ' checked="checked"';
-                            else checked($current,$term->term_id,true);
-                            echo " value='{$term->name}' />{$term->name}";
-                            echo "</label></li>";
-                        }
-                    ?>
-                 </ul>
-            <!--</div>-->
-
-            <!-- Display popular taxonomy terms -->
-<!--
-            <div id="<?php echo $taxonomy; ?>-pop" class="tabs-panel" style="display: none;">
-                <ul id="<?php echo $taxonomy; ?>checklist-pop" class="categorychecklist form-no-clear" >
-                    <?php   
-                        foreach($popular as $term){
-                            $id = 'popular-'.$taxonomy.'-'.$term->term_id;
-                            echo "<li id='$id'><label class='selectit'>";
-                            echo "<input type='radio' id='in-$id'";
-                            if (!$current && $term->name == 'Standard') echo ' checked="checked" ';
-                            else checked($current,$term->term_id,true);
-                            echo " value='$term->name' />$term->name";
-                            echo "</label></li>";
-                        }
-                    ?>
-                </ul>
-            </div>
--->
-	</div>
-	<?php
+    </div>
+    <?php
 }
 /**
  * When the post is saved, saves our custom data.
