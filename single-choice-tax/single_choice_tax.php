@@ -14,7 +14,6 @@ Usage Info:
 */
 
 define('PWEB_TAX','pweb_post_type');
-define('PWEB_TAX_NAME','Types');
 
 // Add new taxonomy
 function pweb_add_single_choice_taxonomy() {
@@ -23,32 +22,33 @@ function pweb_add_single_choice_taxonomy() {
         PWEB_TAX,
         'post',
         array(
-            'label' => __( PWEB_TAX_NAME ),
+            'label' => __( 'Types','pweb-sct' ),
             'rewrite' => array( 'slug' => 'company' ),	//RESUBMIT PERMALINKS TO APPLY (amend 'slug' as required)
             'show_in_nav_menus' => true
         )
     );
     //Populate taxonomy with terms (any but "Standard" could be edited/removed as required)
     wp_insert_term(
-        'Standard', // the term - DO NOT REMOVE 
+        __('Standard','pweb-sct'), // the term - DO NOT REMOVE 
         PWEB_TAX, // the taxonomy
         array(
-            'description'=> 'Standard post'
+            'description'=> __('Standard post','pweb-sct'),
+            'slug' => 'standard'
         )
     );
     wp_insert_term(
-        'News', // the term 
+        __('News','pweb-sct'), // the term 
         PWEB_TAX, // the taxonomy
         array(
-            'description'=> 'Latest news',
+            'description'=> __('Latest news','pweb-sct'),
             'slug' => 'news'
         )
     );
     wp_insert_term(
-        'Promotions', // the term 
+        __('Promotions','pweb-sct'), // the term 
         PWEB_TAX, // the taxonomy
         array(
-            'description'=> 'Current and upcoming promotions',
+            'description'=> __('Current and upcoming promotions','pweb-sct'),
             'slug' => 'promo'
         )
     );
@@ -68,7 +68,7 @@ function pweb_add_single_choice_metabox() {
     foreach ( $screens as $screen ) {
         add_meta_box(
             PWEB_TAX.'_div',									//(required) HTML 'id' attribute of the edit screen section
-            __( PWEB_TAX_NAME, 'properweb' ),	//(required) Title of the edit screen section, visible to user
+            __( 'Types', 'pweb-sct' ),	//(required) Title of the edit screen section, visible to user
             'pweb_print_single_choice_metabox',				//(required) Callback function that prints out the HTML for the edit screen section
             $screen,													//(optional) The type of writing screen on which to show the edit screen section
             'side'	//(optional) The part of the page where the edit screen section should be shown ('normal', 'advanced', or 'side')
@@ -104,8 +104,8 @@ function pweb_print_single_choice_metabox( $post ) {
         <!-- Display tabs-->
 <!--
         <ul id="<?php echo $taxonomy; ?>-tabs" class="category-tabs">
-            <li class="tabs"><a href="#<?php echo $taxonomy; ?>-all" tabindex="3"><?php _e( 'All Types' ); ?></a></li>
-            <li class="hide-if-no-js"><a href="#<?php echo $taxonomy; ?>-pop" tabindex="3"><?php _e( 'Most Used' ); ?></a></li>
+            <li class="tabs"><a href="#<?php echo $taxonomy; ?>-all" tabindex="3"><?php _e( 'All Types','pweb-sct' ); ?></a></li>
+            <li class="hide-if-no-js"><a href="#<?php echo $taxonomy; ?>-pop" tabindex="3"><?php _e( 'Most Used','pweb-sct' ); ?></a></li>
         </ul>
 -->
         <!-- Display taxonomy terms 
@@ -117,7 +117,7 @@ function pweb_print_single_choice_metabox( $post ) {
                         $id = $taxonomy.'-'.$term->term_id;
                         echo "<li id='$id'><label class='selectit'>";
                         echo "<input type='radio' id='in-$id' name='{$name}'";
-                        if (!$current && $term->name == 'Standard') echo ' checked="checked"';
+                        if (!$current && $term->slug == 'standard') echo ' checked="checked"';
                         else checked($current,$term->term_id,true);
                         echo " value='{$term->name}' />{$term->name}";
                         echo "</label></li>";
@@ -135,7 +135,7 @@ function pweb_print_single_choice_metabox( $post ) {
                         $id = 'popular-'.$taxonomy.'-'.$term->term_id;
                         echo "<li id='$id'><label class='selectit'>";
                         echo "<input type='radio' id='in-$id'";
-                        if (!$current && $term->name == 'Standard') echo ' checked="checked" ';
+                        if (!$current && $term->slug == 'standard') echo ' checked="checked" ';
                         else checked($current,$term->term_id,true);
                         echo " value='$term->name' />$term->name";
                         echo "</label></li>";
@@ -197,4 +197,11 @@ function pweb_save_single_choice_metabox_data( $post_id ) {
 	update_post_meta( $post_id, '_pweb_post_type_key', $my_data );
 }
 add_action( 'save_post', 'pweb_save_single_choice_metabox_data' );
+
+//Load plugin textdomain
+add_action( 'plugins_loaded', 'pweb_single_choice_tax_load_textdomain' );
+
+function pweb_single_choice_tax_load_textdomain() {
+  load_plugin_textdomain( 'pweb-sct', false, plugin_basename( dirname( __FILE__ ) ) . '/lang' ); 
+}
 ?>
